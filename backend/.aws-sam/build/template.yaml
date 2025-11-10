@@ -1,0 +1,135 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'pets_backend SAM Template for pets_backend
+
+  '
+Resources:
+  AdoptionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: AdoptionsTable
+      AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+  GetAdoptionLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetAdoptionLambda
+      Handler: getAdoption.lambda_handler
+      Runtime: python3.12
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: AdoptionsTable
+      Architectures:
+      - x86_64
+      Environment:
+        Variables:
+          ADOPTIONS_TABLE:
+            Ref: AdoptionsTable
+      Events:
+        GetAdoptionApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: PetsAPI
+            Path: /adoptions/{id}
+            Method: get
+    Metadata:
+      SamResourceId: GetAdoptionLambda
+  GetAdoptionsLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetAdoptionsLambda
+      Handler: getAdoptions.lambda_handler
+      Runtime: python3.12
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: AdoptionsTable
+      Architectures:
+      - x86_64
+      Environment:
+        Variables:
+          ADOPTIONS_TABLE:
+            Ref: AdoptionsTable
+      Events:
+        GetAdoptionsApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: PetsAPI
+            Path: /adoptions
+            Method: get
+    Metadata:
+      SamResourceId: GetAdoptionsLambda
+  PetsAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: '''GET,OPTIONS,HEAD'''
+        AllowHeaders: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+        AllowOrigin: '''*'''
+  GetPetsLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        Variables:
+          PETS_TABLE:
+            Ref: PetsTable
+      CodeUri: GetPetsLambda
+      Handler: getPets.lambda_handler
+      Runtime: python3.12
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: PetsTable
+      Architectures:
+      - x86_64
+      Events:
+        GetPetsApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: PetsAPI
+            Path: /pets
+            Method: get
+    Metadata:
+      SamResourceId: GetPetsLambda
+  PetsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: PetsTable
+      AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+Outputs:
+  PetsAPI:
+    Description: API Gateway endpoint URL for Prod stage
+    Value:
+      Fn::Sub: https://${PetsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod
+  GetPetsAPIEndpoint:
+    Description: API Gateway endpoint URL for Prod stage for Pets
+    Value:
+      Fn::Sub: https://${PetsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/pets/
+  GetAdoptionsAPIEndpoint:
+    Description: API Gateway endpoint URL for Prod stage for GetAdoptions function
+    Value:
+      Fn::Sub: https://${PetsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/adoptions/
+  GetAdoptionAPIEndpoint:
+    Description: API Gateway endpoint URL for Prod stage for GetAdoption function
+    Value:
+      Fn::Sub: https://${PetsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/adoptions/{id}

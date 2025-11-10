@@ -1,0 +1,133 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  pets_backend
+  SAM Template for pets_backend
+
+Resources:
+  # ADD a DynamoDB table with the table name of "Adoptions" to store Adoptions with the primary AttributeName being "id" of datatype String
+  AdoptionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: AdoptionsTable
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+    # Add a lambda function called "GetAdoptionLambda" that will also be attached to the PetsAPI
+  # resource and will be triggered at the route /adoptions/{id} with a GET request
+  GetAdoptionLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: handlers/get_adoption
+      Handler: getAdoption.lambda_handler
+      Runtime: python3.12
+      #Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaApplicationRoleSam"
+      Policies:
+        - DynamoDBCrudPolicy:
+              TableName: !Ref AdoptionsTable
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          ADOPTIONS_TABLE: !Ref AdoptionsTable
+      Events:
+        GetAdoptionApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PetsAPI
+            Path: /adoptions/{id}
+            Method: get
+   
+  # Add a Lambda function called "GetAdoptionsLambda" that uses the Python 3.12 runtime, and is invoked at the path /adoptions with a get method
+  GetAdoptionsLambda:
+      Type: AWS::Serverless::Function
+      Properties:
+        CodeUri: handlers/get_adoptions
+        Handler: getAdoptions.lambda_handler
+        Runtime: python3.12
+        #Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaApplicationRoleSam"
+        # ADD these policies instead:
+        Policies:
+          - DynamoDBCrudPolicy:
+                TableName: !Ref AdoptionsTable
+        Architectures: 
+          - x86_64
+        Environment:  # Configures environment variables for Lambda functions.
+          Variables: # Defines environment variable values for Lambda functions.
+            # Environment variable for the DynamoDB table name
+            ADOPTIONS_TABLE: !Ref AdoptionsTable
+        Events:
+          GetAdoptionsApi: 
+            Type: Api 
+            Properties: 
+              RestApiId: !Ref PetsAPI
+              Path: /adoptions
+              Method: get
+  PetsAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET,OPTIONS,HEAD'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+  GetPetsLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        Variables:
+          PETS_TABLE: !Ref PetsTable
+      CodeUri: handlers/get_pets
+      Handler: getPets.lambda_handler
+      Runtime: python3.12
+      #Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaApplicationRoleSam"
+      # ADD these policies instead:
+      Policies:
+        - DynamoDBCrudPolicy:
+              TableName: !Ref PetsTable
+      
+      
+      Architectures: # Specifies the architecture for the Lambda function.
+        - x86_64
+      Events: # Defines events that trigger the Lambda function.
+        GetPetsApi: # Specifies an API Gateway event named GetPetsApi that triggers the Lambda function.
+          Type: Api # Specifies that the event source is an API Gateway endpoint.
+          Properties: # Defines properties of the API Gateway event.
+            RestApiId: !Ref PetsAPI
+            Path: /pets
+            Method: get
+  PetsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: PetsTable
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+Outputs:
+  PetsAPI:
+    Description: "API Gateway endpoint URL for Prod stage"
+    Value: !Sub "https://${PetsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+  GetPetsAPIEndpoint:
+    Description: "API Gateway endpoint URL for Prod stage for Pets"
+    Value: !Sub "https://${PetsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/pets/"
+  # Add output for the /adoptions API endpoint
+  GetAdoptionsAPIEndpoint:
+    Description: API Gateway endpoint URL for Prod stage for GetAdoptions function
+    Value: !Sub "https://${PetsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/adoptions/"
+   # Output the API endpoint URL for GetAdoptionLambda
+  GetAdoptionAPIEndpoint:
+    Description: API Gateway endpoint URL for Prod stage for GetAdoption function
+    Value: !Sub "https://${PetsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/adoptions/{id}" 

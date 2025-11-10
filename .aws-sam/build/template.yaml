@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'pets_backend SAM Template for pets_backend
+
+  '
+Resources:
+  PetsAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: '''GET,OPTIONS,HEAD'''
+        AllowHeaders: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+        AllowOrigin: '''*'''
+  GetPetsLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        Variables:
+          PETS_TABLE:
+            Ref: PetsTable
+      CodeUri: GetPetsLambda
+      Handler: getPets.lambda_handler
+      Runtime: python3.13
+      Role:
+        Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/LambdaApplicationRoleSam
+      Architectures:
+      - x86_64
+      Events:
+        GetPetsApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: PetsAPI
+            Path: /pets
+            Method: get
+    Metadata:
+      SamResourceId: GetPetsLambda
+  PetsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: PetsTable
+      AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+Outputs:
+  PetsAPI:
+    Description: API Gateway endpoint URL for Prod stage
+    Value:
+      Fn::Sub: https://${PetsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod
+  GetPetsAPIEndpoint:
+    Description: API Gateway endpoint URL for Prod stage for Pets
+    Value:
+      Fn::Sub: https://${PetsAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/pets/
