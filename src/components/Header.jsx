@@ -1,7 +1,9 @@
 import logo from "../assets/logo.png";
 import { Link } from "react-router-dom";
 
-const Header = () => {
+const S3_BUCKET_URL = import.meta.env.VITE_PET_IMAGES_BUCKET_URL;
+
+const Header = ({ isUserSignedIn }) => {
   const title = "Shelly's Pet Shelter";
   return (
     <div className="header">
@@ -23,9 +25,11 @@ const Header = () => {
           <li>
             <Link to="/adopt">Adopt</Link>
           </li>
-          <li>
-            <Link to="/applications">Applications</Link>
-          </li>
+          {isUserSignedIn && (
+            <li>
+              <Link to="/applications">Applications</Link>
+            </li>
+          )}
         </ul>
       </nav>
     </div>

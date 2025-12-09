@@ -13,12 +13,18 @@ const ApplicationDetail = () => {
     const [loading, setLoading] = useState(true); // State to handle loading
     const [error, setError] = useState(null); // State to handle errors
     const navigate = useNavigate(); // Hook to navigate programmatically
-   useEffect(() => {
+    useEffect(() => {
         // Function to fetch application data
         const fetchApplication = async () => {
             try {
-                const response = await axios.get(`${API_GATEWAY_BASE_URL}/adoptions/${id}`);
- 	     setApplication(response.data);
+                const accessToken = localStorage.getItem("accessToken");
+                const response = await axios.get(`${API_GATEWAY_BASE_URL}/adoptions/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                setApplication(response.data);
                 setLoading(false);
             } catch (err) {
                 setError(err.message);
@@ -63,13 +69,14 @@ const ApplicationDetail = () => {
                 {
                     application.pets.map((pet, index) => {
                         return (
-                            <div key={index} style={{ 
-                                border: "1px solid black", 
-                                display: "flex", 
-                                flexDirection: "column", 
-                                gap: "10px", 
-                                padding: "15px", 
-                                alignItems: "center" }}>
+                            <div key={index} style={{
+                                border: "1px solid black",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "10px",
+                                padding: "15px",
+                                alignItems: "center"
+                            }}>
                                 <h3 style={{ textDecoration: "underline" }}>{pet.name}</h3>
                                 <img src={`${S3_BUCKET_URL}${pet.image}`} alt={pet.name} width={"400px"} />
                                 <p><b>Species:</b> {pet.species}</p>

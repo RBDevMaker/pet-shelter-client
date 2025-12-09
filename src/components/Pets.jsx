@@ -18,7 +18,7 @@ export default function Pets({ pets }) {
 
   return (
     <div className="pets">
-      <h1>Cars For Rent</h1>
+      <h1>Available Pets</h1>
       <label>
         Filter by species:
         <select value={filter} onChange={(e) => setFilter(e.target.value)}>
