@@ -3,7 +3,7 @@ import shelterImage from "../assets/shelter.jpeg";
 const Home = () => {
   return (
     <div className="home">
-      <h2>Welcome to our Pet Shelter</h2>
+      <h2 style={{ fontSize: "42px", fontWeight: "bold" }}>Welcome to our Pet Shelter</h2>
       <p>
         Welcome to Shelly's Pet Shelter, where we care for and find loving
         homes for stray and abandoned pets. Our shelter provides a safe haven

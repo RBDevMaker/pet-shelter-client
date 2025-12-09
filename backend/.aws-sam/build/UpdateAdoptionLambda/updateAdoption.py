@@ -35,7 +35,7 @@ def lambda_handler(event, context):
         if pet_id:
             pets = item.get('pets', [])
             for pet in pets:
-                if pet.get('id') == pet_id:
+                if str(pet.get('id')) == str(pet_id):
                     pet['status'] = status
             
             # Update the pets array

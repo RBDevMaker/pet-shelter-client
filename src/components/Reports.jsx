@@ -64,7 +64,12 @@ const Reports = ({ pets, applications, onClose }) => {
         return applicationsForPet;
     };
 
-    const handlePrint = () => window.print();
+    const handlePrint = () => {
+        // Force a small delay to ensure the DOM is updated before printing
+        setTimeout(() => {
+            window.print();
+        }, 100);
+    };
 
     const handleDownload = () => {
         const content = document.getElementById("reportContent");

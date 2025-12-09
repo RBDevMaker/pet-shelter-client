@@ -25,7 +25,7 @@ export default function Pets({ pets, applications = [] }) {
 
   return (
     <div className="pets">
-      <h1>Available Pets</h1>
+      <h1 style={{ fontSize: "42px", fontWeight: "bold" }}>Available Pets</h1>
       <label>
         Filter by species:
         <select value={filter} onChange={(e) => setFilter(e.target.value)}>

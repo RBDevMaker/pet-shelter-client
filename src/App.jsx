@@ -107,19 +107,42 @@ function App() {
       <div>
         {isUserSignedIn ? (
           // Render content for signed-in users
-          <div>
-            <div>Signed in as employee</div>
+          <div style={{
+            backgroundColor: "#e3f2fd",
+            padding: "15px 30px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderBottom: "2px solid #2196f3",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+          }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              fontSize: "16px",
+              fontWeight: "500",
+              color: "#1976d2"
+            }}>
+              <span style={{ fontSize: "20px" }}>👤</span>
+              <span>Signed in as Employee</span>
+            </div>
             <button
               onClick={handleSignOut}
               style={{
                 color: "white",
-                backgroundColor: "red",
-                padding: "8px 16px",
+                backgroundColor: "#dc3545",
+                padding: "10px 20px",
                 border: "none",
-                borderRadius: "4px",
+                borderRadius: "6px",
                 cursor: "pointer",
-                margin: "10px"
+                fontSize: "14px",
+                fontWeight: "bold",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                transition: "background-color 0.3s"
               }}
+              onMouseOver={(e) => e.target.style.backgroundColor = "#c82333"}
+              onMouseOut={(e) => e.target.style.backgroundColor = "#dc3545"}
             >
               Sign Out
             </button>
