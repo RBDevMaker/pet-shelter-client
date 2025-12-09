@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import Reports from "./Reports";
 
 const formatDate = (dateString) => dateString.split("T")[0];
 
 const Applications = () => {
   const API_GATEWAY_BASE_URL = import.meta.env.VITE_API_GATEWAY_URL;
   const [applications, setApplications] = useState([]);
+  const [pets, setPets] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showReports, setShowReports] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
 
   const accessToken = localStorage.getItem("accessToken");
@@ -31,6 +34,14 @@ const Applications = () => {
 
   useEffect(() => {
     fetchApplications();
+    // Fetch pets data for reports
+    axios.get(`${API_GATEWAY_BASE_URL}/pets`)
+      .then((response) => {
+        setPets(response.data.pets);
+      })
+      .catch((error) => {
+        console.error("Error fetching pets:", error);
+      });
   }, [API_GATEWAY_BASE_URL]);
 
   // Handle status change for individual pet
@@ -81,7 +92,24 @@ const Applications = () => {
 
   return (
     <div className="table-container">
-      <h3>Applications</h3>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h3 style={{ margin: 0 }}>Applications</h3>
+        <button
+          onClick={() => setShowReports(true)}
+          style={{
+            backgroundColor: "#2196f3",
+            color: "white",
+            border: "none",
+            padding: "10px 20px",
+            borderRadius: "6px",
+            fontSize: "16px",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          View Reports
+        </button>
+      </div>
 
       <table>
         <thead>
@@ -108,7 +136,10 @@ const Applications = () => {
           {/* Map through each application and each pet */}
           {applications.map((application, appIndex) =>
             application.pets.map((pet, petIndex) => (
-              <tr key={`${appIndex}-${petIndex}`}>
+              <tr
+                key={`${appIndex}-${petIndex}`}
+                style={{ backgroundColor: appIndex % 2 === 0 ? "#f2f2f2" : "white" }}
+              >
                 {petIndex === 0 && (
                   <>
                     <td rowSpan={application.pets.length}>{application.applicant_name}</td>
@@ -135,7 +166,7 @@ const Applications = () => {
                     {pet.status ? pet.status.replace(/_/g, " ") : "Pending"}
                   </span>
                 </td>
-                <td>
+                <td style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-start" }}>
                   {petIndex === 0 && (
                     <Link to={`/applications/${application.id || appIndex}`}>
                       View Details
@@ -145,7 +176,6 @@ const Applications = () => {
                     value={pet.status || "pending"}
                     onChange={(e) => handlePetStatusChange(application, pet, e.target.value)}
                     style={{
-                      marginLeft: petIndex === 0 ? "10px" : "0",
                       backgroundColor: getStatusColor(pet.status || "pending"),
                       color: "white",
                       border: "none",
@@ -153,7 +183,8 @@ const Applications = () => {
                       borderRadius: "4px",
                       cursor: "pointer",
                       fontWeight: "bold",
-                      fontSize: "14px"
+                      fontSize: "14px",
+                      width: "100%"
                     }}
                   >
                     <option value="pending" style={{ backgroundColor: "white", color: "black" }}>
@@ -172,6 +203,15 @@ const Applications = () => {
           )}
         </tbody>
       </table>
+
+      {/* Reports Modal */}
+      {showReports && (
+        <Reports
+          pets={pets}
+          applications={applications}
+          onClose={() => setShowReports(false)}
+        />
+      )}
 
       {/* Approval Modal */}
       {showModal && selectedApplication && (

@@ -14,6 +14,22 @@ export default function AdoptionForm({ pets }) {
       setFormData({ ...formData, [name]: JSON.parse(value) });
       return;
     }
+
+    // Format phone number as (123)456-7890
+    if (name === "phone") {
+      const cleaned = value.replace(/\D/g, "");
+      let formatted = cleaned;
+      if (cleaned.length >= 6) {
+        formatted = `(${cleaned.slice(0, 3)})${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
+      } else if (cleaned.length >= 3) {
+        formatted = `(${cleaned.slice(0, 3)})${cleaned.slice(3)}`;
+      } else if (cleaned.length > 0) {
+        formatted = `(${cleaned}`;
+      }
+      setFormData({ ...formData, [name]: formatted });
+      return;
+    }
+
     setFormData({ ...formData, [name]: value });
   };
 
@@ -70,8 +86,8 @@ export default function AdoptionForm({ pets }) {
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            placeholder="123-456-7890"
-            pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+            placeholder="(123)456-7890"
+            pattern="\([0-9]{3}\)[0-9]{3}-[0-9]{4}"
             required
           />
         </div>

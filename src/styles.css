@@ -35,7 +35,7 @@ main {
   justify-content: center;
 }
 
-.navigation > ul {
+.navigation>ul {
   display: flex;
   gap: 10px;
   justify-content: space-evenly;
@@ -72,6 +72,7 @@ nav ul li a:hover {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   margin-bottom: 20px;
 }
+
 .home img {
   width: 70%;
   margin: 10px;
@@ -87,6 +88,7 @@ nav ul li a:hover {
 .col-left {
   flex: 1;
 }
+
 .col-right {
   flex: 1;
   display: flex;
@@ -136,6 +138,7 @@ nav ul li a:hover {
   display: flex;
   justify-content: center;
 }
+
 .form {
   /* text-align: center; */
   display: flex;
@@ -148,12 +151,16 @@ nav ul li a:hover {
 
 .form-group {
   width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .form-group label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
+  align-self: flex-start;
 }
 
 .form-group input,

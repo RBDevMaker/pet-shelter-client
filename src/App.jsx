@@ -23,6 +23,7 @@ function App() {
   const API_GATEWAY_BASE_URL = import.meta.env.VITE_API_GATEWAY_URL;
   const S3_BUCKET_URL = import.meta.env.VITE_PET_IMAGES_BUCKET_URL;
   const [pets, setPets] = useState([]);
+  const [applications, setApplications] = useState([]);
   const [isUserSignedIn, setIsUserSignedIn] = useState(false);
   const navigate = useNavigate();
 
@@ -89,6 +90,13 @@ function App() {
         setPets(res.data.pets);
       })
       .catch(err => console.log(err))
+
+    // get applications from api (no auth needed for public view)
+    axios.get(`${API_GATEWAY_BASE_URL}/adoptions`)
+      .then(res => {
+        setApplications(res.data);
+      })
+      .catch(err => console.log(err))
   }, [])
 
   return (
@@ -141,7 +149,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<AboutUs />} />
-          <Route path="/pets" element={<Pets pets={pets} />} />
+          <Route path="/pets" element={<Pets pets={pets} applications={applications} />} />
           <Route path="/adopt" element={<AdoptionForm pets={pets} />} />
           <Route path="/applications" element={<Applications />} />
           <Route path="/applications/:id" element={<ApplicationDetail />} />
