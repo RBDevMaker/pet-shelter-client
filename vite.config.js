@@ -8,5 +8,5 @@ export default defineConfig({
     environment: "jsdom",
   },
   // For remote development only. Comment out the line below if running React the application locally. 
-  base: "/preview"
+  // base: "/preview"
 });
